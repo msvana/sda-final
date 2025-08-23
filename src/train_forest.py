@@ -9,6 +9,7 @@ from skimage.io import imread
 from skimage.transform import resize
 from sklearn.ensemble import RandomForestClassifier
 
+from utils import load_image
 
 def main():
     X, y = load_images("images/")
@@ -51,13 +52,8 @@ def load_images(directory, image_size=(64, 64), max_file_size_kb=500):
                     file_size_kb = os.path.getsize(filepath) / 1024
                     if file_size_kb > max_file_size_kb:
                         continue
-                    image = imread(filepath)
-                    if len(image.shape) == 3:
-                        if image.shape[-1] == 4:
-                            image = rgba2rgb(image)
-                        image = rgb2gray(image)
-                    image_resized = resize(image, image_size, anti_aliasing=True)
-                    X.append(image_resized.flatten())
+                    image = load_image(filepath, image_size)
+                    X.append(image)
                     y.append(class_name)
 
     return np.array(X), np.array(y)
