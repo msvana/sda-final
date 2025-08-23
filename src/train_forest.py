@@ -1,12 +1,14 @@
 import os
-import numpy as np
+import pickle
 
+import numpy as np
 from skimage.color import rgb2gray, rgba2rgb
 from sklearn.model_selection import train_test_split
 from sklearn.decomposition import PCA
 from skimage.io import imread
 from skimage.transform import resize
 from sklearn.ensemble import RandomForestClassifier
+
 
 def main():
     X, y = load_images("images/")
@@ -28,6 +30,11 @@ def main():
 
     assert score_train > 0.90
     assert score_test > 0.40
+
+    f = open("randomforest.pickle", "wb")
+    model_pipeline = {"pca": pca, "model": model}
+    pickle.dump(model_pipeline, f)
+    f.close()
 
 
 def load_images(directory, image_size=(64, 64), max_file_size_kb=500):
