@@ -2,11 +2,32 @@ import os
 import numpy as np
 
 from skimage.color import rgb2gray, rgba2rgb
+from sklearn.model_selection import train_test_split
+from sklearn.decomposition import PCA
 from skimage.io import imread
 from skimage.transform import resize
+from sklearn.ensemble import RandomForestClassifier
 
 def main():
     X, y = load_images("images/")
+    validate_dataset(X, y)
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+    pca = PCA(50)
+    X_train_pca = pca.fit_transform(X_train)
+    X_test_pca = pca.transform(X_test)
+    assert np.sum(pca.explained_variance_ratio_) > 0.8
+
+    model = RandomForestClassifier(250)
+    model.fit(X_train_pca, y_train)
+
+    score_train = model.score(X_train_pca, y_train)
+    score_test = model.score(X_test_pca, y_test)
+
+    print(score_train, score_test)
+
+    assert score_train > 0.90
+    assert score_test > 0.40
 
 
 def load_images(directory, image_size=(64, 64), max_file_size_kb=500):
@@ -33,6 +54,17 @@ def load_images(directory, image_size=(64, 64), max_file_size_kb=500):
                     y.append(class_name)
 
     return np.array(X), np.array(y)
+
+def validate_dataset(X, y, image_size=(64, 64)):
+    classes = set(y)
+    assert len(classes) == 10
+
+    for c in classes:
+        X_c = X[y == c]
+        assert len(X_c) >= 750
+    
+    for image in X[:100]:
+        assert image.shape[0] == image_size[0] * image_size[1]
 
 
 if __name__ == "__main__":
