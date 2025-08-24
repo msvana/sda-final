@@ -20,10 +20,11 @@ def index():
     
     file = request.files["file"]
     file.save(f"./uploads/{file.filename}")
+    
     test_image = load_image(f"./uploads/{file.filename}")
     test_image_pca = model_pipeline["pca"].transform([test_image])
     animal = model_pipeline["model"].predict(test_image_pca)[0]
     return animal
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, host="0.0.0.0")
