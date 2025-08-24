@@ -20,3 +20,12 @@ jobs:
               run: |
                 python -m pip install --upgrade pip
                 pip install -r requirements.txt
+            
+            - name: Get images
+              run: |
+                wget "https://filedn.eu/lSKbWOWv8NmFMAqB0ux1kXB/images.zip"
+                unzip images.zip
+                rm images.zip
+            
+            - name: Train model
+              run: python src/train_forest.py
